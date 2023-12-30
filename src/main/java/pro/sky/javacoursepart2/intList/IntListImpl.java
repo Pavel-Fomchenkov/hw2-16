@@ -2,6 +2,8 @@ package pro.sky.javacoursepart2.intList;
 
 import pro.sky.javacoursepart2.exceptions.*;
 
+import java.util.Arrays;
+
 public class IntListImpl implements IntList {
     private int capacity = 10; // storage value (default value is 10)
     private int[] storage = new int[capacity];
@@ -20,17 +22,16 @@ public class IntListImpl implements IntList {
     @Override
     public int add(Integer item) {
         checkItem(item);
-        checkCapacity(size);
+        if (size == capacity) grow();
         storage[size++] = item;
         return item;
     }
-
 
     @Override
     public int add(int index, Integer item) {
         checkIndex(index);
         checkItem(item);
-        checkCapacity(size);
+        if (size == capacity) grow();
         if (index >= size) {
             storage[size++] = item;
         } else {
@@ -76,7 +77,7 @@ public class IntListImpl implements IntList {
     public boolean contains(Integer item) {
         checkItem(item);
         int[] storageCopy = toArray();
-        sortInsertion(storageCopy);
+        quickSort(storageCopy, 0, size - 1);
         return searchBinary(storageCopy, item);
     }
 
@@ -147,23 +148,52 @@ public class IntListImpl implements IntList {
         if (item == null) throw new IllegalArgumentException("Item argument: " + item + " cannot be null");
     }
 
-    private void checkCapacity(int index) {
-        if (index >= capacity)
-            throw new InsufficientCapacityException("There is no space for index " + index + " item");
-    }
+//    private void sortInsertion(int[] storageCopy) {
+//        for (int i = 1; i < size; i++) {
+//            int temp = storageCopy[i];
+//            int j = i;
+//            while (j > 0 && storageCopy[j - 1] >= temp) {
+//                storageCopy[j] = storageCopy[j - 1];
+//                j--;
+//            }
+//            storageCopy[j] = temp;
+//        }
+//    }
 
-    private void sortInsertion(int[] storageCopy) {
-        for (int i = 1; i < size; i++) {
-            int temp = storageCopy[i];
-            int j = i;
-            while (j > 0 && storageCopy[j - 1] >= temp) {
-                storageCopy[j] = storageCopy[j - 1];
-                j--;
-            }
-            storageCopy[j] = temp;
+
+    // start of quicksort algorithm
+    public static void quickSort(int[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
         }
     }
 
+    private static int partition(int[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+
+    private static void swapElements(int[] arr, int indexA, int indexB) {
+        int tmp = arr[indexA];
+        arr[indexA] = arr[indexB];
+        arr[indexB] = tmp;
+    }
+
+    // end of quicksort algorithm
     private boolean searchBinary(int[] storageCopy, int item) {
         int minIdx = 0;
         int maxIdx = size - 1;
@@ -181,5 +211,12 @@ public class IntListImpl implements IntList {
             }
         }
         return false;
+    }
+
+    private void grow() {
+        capacity *= 2;
+        int[] newArr = new int[capacity];
+        System.arraycopy(storage, 0, newArr, 0, size);
+        storage = newArr;
     }
 }
