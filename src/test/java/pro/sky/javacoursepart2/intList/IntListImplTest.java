@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pro.sky.javacoursepart2.exceptions.IllegalCapacityException;
 import pro.sky.javacoursepart2.exceptions.IllegalIndexException;
-import pro.sky.javacoursepart2.exceptions.InsufficientCapacityException;
 
 import java.util.Arrays;
 
@@ -32,7 +31,6 @@ class IntListImplTest {
         list2.add(2);
         String expected = "[0, 1, 2]";
         assertEquals(expected, Arrays.toString(list2.toArray()));
-        assertThrows(InsufficientCapacityException.class, () -> list2.add(3));
         assertThrows(IllegalCapacityException.class, () -> new IntListImpl(-15));
         list2.clear();
     }
@@ -43,6 +41,18 @@ class IntListImplTest {
         assertEquals(expected, list.add(-1));
         String newExpected = "[15, 4, 37, 7, 99, -1]";
         assertEquals(newExpected, Arrays.toString(list.toArray()));
+    }
+
+    @Test
+    void addBeyondActualCapacity() {
+        int i = 0;
+        for (int j = 0; j < 30; j++) {
+            list.add(i++);
+            list.add(i, 33);
+        }
+        String expected = "[15, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 4, 37, 7, 99, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]";
+        String actual = (Arrays.toString(list.toArray()));
+        assertEquals(expected, actual);
     }
 
     @Test
